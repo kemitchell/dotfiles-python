@@ -1,0 +1,32 @@
+#!/usr/bin/zsh
+set -e
+
+version="$1"
+if [ -z "$version" ]; then
+  echo "Usage: <version>"
+  exit 1
+fi
+
+# Install build dependenncies.
+sudo apt-get update
+sudo apt-get build-dep -y python
+
+# Use temporary directory for tarball.
+tmp=$(mkdtemp)
+unpacked="$HOME/.local/source/python-$version"
+function cleanup () {
+  rm -rf "$tmp"
+}
+trap cleanup EXIT
+cd "$tmp"
+
+url="https://www.python.org/ftp/python/${version}/Python-${version}.tgz"
+tarball="tarball.tgz"
+curl -o "$tarball" "$url"
+tar zxvf -f "$tarball" -C "$unpacked"
+
+cd "$unpacked"
+./configure --enable-optimizations --prefix="$PREFIX"
+make
+make install
+rm -rf "$unpacked"

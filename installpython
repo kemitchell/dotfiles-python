@@ -1,2 +1,0 @@
-#!/usr/bin/zsh
-sudo apt-get build-dep -y python
